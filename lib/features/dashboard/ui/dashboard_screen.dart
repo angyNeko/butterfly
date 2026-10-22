@@ -11,7 +11,7 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dbService = ref.watch(objectBoxProvider);
+    final dbService = ref.watch(dbProvider);
 
     return Scaffold(
       appBar: AppBar(

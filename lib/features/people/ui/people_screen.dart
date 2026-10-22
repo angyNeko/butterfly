@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import '../../../main.dart'; // Imports objectBoxProvider
+import '../../../main.dart';
 import '../models/person_model.dart';
 
 class PeopleScreen extends ConsumerWidget {
@@ -9,7 +9,7 @@ class PeopleScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dbService = ref.watch(objectBoxProvider);
+    final dbService = ref.watch(dbProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -41,14 +41,23 @@ class PeopleScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // We will replace this with a popup dialog later to type a real name
-          final newPerson = Person()
-            ..personId = const Uuid().v4()
-            ..name = 'Person ${dbService.getAllPeople().length + 1}';
+        onPressed: () async {
+          // 1. Await the list of people to get the actual length
+          final currentPeople = await dbService.getAllPeople();
 
-          dbService.savePerson(newPerson);
-          (context as Element).markNeedsBuild();
+          // 2. Use the new standard constructor we made for the Person model
+          final newPerson = Person(
+            personId: const Uuid().v4(),
+            name: 'Person ${currentPeople.length + 1}',
+          );
+
+          // 3. Await the save operation
+          await dbService.savePerson(newPerson);
+
+          // 4. Force UI rebuild (checking if context is mounted is a Flutter best practice after using await)
+          if (context.mounted) {
+            (context as Element).markNeedsBuild();
+          }
         },
         child: const Icon(Icons.add),
       ),

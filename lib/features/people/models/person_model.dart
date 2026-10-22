@@ -1,13 +1,25 @@
-import 'package:objectbox/objectbox.dart';
-
-@Entity()
 class Person {
-  @Id()
-  int id = 0;
+  String personId;
+  String name;
 
-  @Unique()
-  late String personId;
+  Person({
+    required this.personId,
+    required this.name,
+  });
 
-  late String name;
+  // Convert object to Map for Sembast
+  Map<String, dynamic> toMap() {
+    return {
+      'personId': personId,
+      'name': name,
+    };
+  }
 
+  // Convert Map back to Person object
+  factory Person.fromMap(Map<String, dynamic> map) {
+    return Person(
+      personId: map['personId'] as String,
+      name: map['name'] as String,
+    );
+  }
 }

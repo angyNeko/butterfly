@@ -1,22 +1,34 @@
-import 'package:objectbox/objectbox.dart';
-
-@Entity()
 class Receipt {
-  // ObjectBox requires an integer ID. Setting it to 0 tells it to auto-increment automatically.
-  @Id()
-  int id = 0;
-
-  // @Unique() ensures no two receipts can have the same UUID string.
-  @Unique()
-  late String receiptId;
-
-  late String name;
-
-  late String store;
-
-  // ObjectBox handles dates perfectly, we just tag it so it stores it correctly in the database.
-  @Property(type: PropertyType.date)
-  late DateTime date;
-
+  String receiptId;
+  String name;
+  String store;
+  DateTime date;
   String? receiptImg;
+
+  Receipt({
+    required this.receiptId,
+    required this.name,
+    required this.store,
+    required this.date,
+    this.receiptImg,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'receiptId': receiptId,
+      'name': name,
+      'store': store,
+      'date': date.toIso8601String(),
+      'receiptImg': receiptImg,
+    };
+  }
+
+  factory Receipt.fromMap(Map<String, dynamic> map) {
+    return Receipt(
+      receiptId: map['receiptId'] as String,
+      name: map['name'] as String,
+      store: map['store'] as String,
+      date: DateTime.parse(map['date'] as String),
+    );
+  }
 }

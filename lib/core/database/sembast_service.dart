@@ -59,23 +59,11 @@ class SembastService {
     await _receiptsStore.record(receipt.receiptId).put(_db, receipt.toMap());
   }
 
-  Future<List<Receipt>> getAllReceipts() async {
-    final snapshots = await _receiptsStore.find(_db);
-    return snapshots.map((snapshot) => Receipt.fromMap(snapshot.value)).toList();
-  }
-
-  Future<List<Item>> getItemsForReceipt(String receiptId) async {
-    // Filter the items store where the receiptId matches
-    final finder = Finder(filter: Filter.equals('receiptId', receiptId));
-    final snapshots = await _itemsStore.find(_db, finder: finder);
-
-    return snapshots.map((s) => Item.fromMap(s.value)).toList();
-  }
-
   Future<void> saveItem(Item item) async {
     await _itemsStore.record(item.itemId).put(_db, item.toMap());
   }
 
+  // Used by UntaggedItemsScreen to find items that need a person assigned
   Future<List<Item>> getUntaggedItems() async {
     final snapshots = await _itemsStore.find(_db);
     final allItems = snapshots.map((s) => Item.fromMap(s.value)).toList();
@@ -83,10 +71,19 @@ class SembastService {
     return allItems.where((item) => item.assignedPersonIds.isEmpty).toList();
   }
 
+  // Used by ReceiptDetailScreen to show all items belonging to one receipt
+  Future<List<Item>> getItemsForReceipt(String receiptId) async {
+    final finder = Finder(filter: Filter.equals('receiptId', receiptId));
+    final snapshots = await _itemsStore.find(_db, finder: finder);
+    return snapshots.map((snapshot) => Item.fromMap(snapshot.value)).toList();
+  }
+
+  // Used to save a new Store to your database
   Future<void> saveStore(StoreRecord store) async {
     await _storesStore.record(store.storeId).put(_db, store.toMap());
   }
 
+  // Used to save a StoreItem default to your database
   Future<void> saveStoreItem(StoreItem storeItem) async {
     await _storeItemsStore.record(storeItem.storeItemId).put(_db, storeItem.toMap());
   }

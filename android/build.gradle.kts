@@ -11,7 +11,7 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
-}
+}   
 
 // --- THE ISAR FIX MUST GO HERE (BEFORE EVALUATION) ---
 subprojects {

@@ -7,6 +7,7 @@ import 'widgets/person_balance_card.dart';
 import '../../settings/ui/settings_screen.dart';
 import '../../people/ui/widgets/add_person_dialog.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import '../../receipts/ui/add_receipt_screen.dart';
 
 
 class DashboardScreen extends ConsumerWidget {
@@ -105,8 +106,10 @@ class DashboardScreen extends ConsumerWidget {
             backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
             label: 'Add Receipt',
             onTap: () {
-              // We will wire this up when we build the Receipt creation screen
-              print("Navigate to Add Receipt");
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddReceiptScreen()),
+              );
             },
           ),
           SpeedDialChild(

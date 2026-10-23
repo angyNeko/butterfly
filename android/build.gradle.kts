@@ -18,7 +18,7 @@ subprojects {
     afterEvaluate {
         if (plugins.hasPlugin("com.android.library")) {
             configure<com.android.build.gradle.LibraryExtension> {
-                compileSdk = 34
+                compileSdk = 36
                 if (namespace.isNullOrBlank()) {
                     val safeGroup = project.group.toString()
                     namespace = if (safeGroup.isNotBlank()) safeGroup else "com.example.${project.name.replace("-", "_")}"

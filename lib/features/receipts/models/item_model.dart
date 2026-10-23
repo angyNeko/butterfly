@@ -16,7 +16,7 @@ class Item {
     required this.itemPrice,
     required this.itemQty,
     required this.splitType,
-    required this.assignedPersonIds,
+    this.assignedPersonIds = const [],
   });
 
   Map<String, dynamic> toMap() {

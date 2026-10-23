@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../people/ui/people_screen.dart';
 import '../../receipts/ui/receipts_screen.dart';
+import '../../receipts/ui/untagged_items_screen.dart'; // <-- Added import for your new feature
 
 class ManageScreen extends StatelessWidget {
   const ManageScreen({super.key});
@@ -30,6 +31,22 @@ class ManageScreen extends StatelessWidget {
             title: 'People',
             destination: const PeopleScreen(),
           ),
+          // --- NEW: Untagged Items Card ---
+          _buildGridCard(
+            context,
+            icon: Icons.label_off_outlined,
+            title: 'Untagged',
+            destination: const UntaggedItemsScreen(),
+          ),
+          // (Placeholder for the Stores screen we will build later)
+          /*
+          _buildGridCard(
+            context,
+            icon: Icons.store,
+            title: 'Stores',
+            destination: const StoresScreen(),
+          ),
+          */
         ],
       ),
     );
@@ -40,8 +57,8 @@ class ManageScreen extends StatelessWidget {
     return Card(
       elevation: 0,
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      clipBehavior: Clip.hardEdge, // Keeps the ripple effect inside the rounded corners
-      child: InkWell( // Makes the card clickable with a Material ripple
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
         onTap: () {
           Navigator.push(
             context,

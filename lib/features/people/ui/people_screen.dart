@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
-import '../../../main.dart';
+import '../../../main.dart'; // Imports dbProvider
 import '../models/person_model.dart';
+import './widgets/add_person_dialog.dart';
 
 class PeopleScreen extends ConsumerWidget {
   const PeopleScreen({super.key});
@@ -12,11 +12,9 @@ class PeopleScreen extends ConsumerWidget {
     final dbService = ref.watch(dbProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('People'),
-      ),
+      // Note: We removed the AppBar here earlier since ManageScreen handles it!
       body: FutureBuilder<List<Person>>(
-        future: Future.value(dbService.getAllPeople()),
+        future: dbService.getActivePeople(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
@@ -41,25 +39,19 @@ class PeopleScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          // 1. Await the list of people to get the actual length
-          final currentPeople = await dbService.getAllPeople();
-
-          // 2. Use the new standard constructor we made for the Person model
-          final newPerson = Person(
-            personId: const Uuid().v4(),
-            name: 'Person ${currentPeople.length + 1}',
-          );
-
-          // 3. Await the save operation
-          await dbService.savePerson(newPerson);
-
-          // 4. Force UI rebuild (checking if context is mounted is a Flutter best practice after using await)
-          if (context.mounted) {
-            (context as Element).markNeedsBuild();
-          }
+        onPressed: () {
+          // Show the popup dialog when clicked
+          showDialog(
+            context: context,
+            builder: (context) => const AddPersonDialog(),
+          ).then((_) {
+            // When the dialog closes, force the screen to rebuild to show the new person
+            if (context.mounted) {
+              (context as Element).markNeedsBuild();
+            }
+          });
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.person_add), // Updated icon
       ),
     );
   }

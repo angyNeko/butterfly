@@ -5,6 +5,9 @@ import '../../people/models/person_model.dart';
 import 'widgets/grand_total_card.dart';
 import 'widgets/person_balance_card.dart';
 import '../../settings/ui/settings_screen.dart';
+import '../../people/ui/widgets/add_person_dialog.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -30,8 +33,9 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ],
       ),
+
       body: FutureBuilder<List<Person>>(
-        future: Future.value(dbService.getAllPeople()),
+        future: Future.value(dbService.getActivePeople()),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -71,6 +75,50 @@ class DashboardScreen extends ConsumerWidget {
             ],
           );
         },
+      ),
+
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close, // Changes to an 'X' when expanded
+        spacing: 15, // Space between the main button and the children
+        overlayColor: Colors.black, // Darkens the background when open
+        overlayOpacity: 0.5,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.person_add),
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            label: 'Add Person',
+            onTap: () {
+              // Reuse the dialog you already built!
+              showDialog(
+                context: context,
+                builder: (context) => const AddPersonDialog(),
+              ).then((_) {
+                if (context.mounted) {
+                  (context as Element).markNeedsBuild();
+                }
+              });
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.receipt_long),
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            label: 'Add Receipt',
+            onTap: () {
+              // We will wire this up when we build the Receipt creation screen
+              print("Navigate to Add Receipt");
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.shopping_bag_outlined),
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+            label: 'Add Item',
+            onTap: () {
+              // We will wire this up later
+              print("Navigate to Add Item");
+            },
+          ),
+        ],
       ),
     );
   }

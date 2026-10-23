@@ -1,10 +1,12 @@
 class Person {
   String personId;
   String name;
+  bool active;
 
   Person({
     required this.personId,
     required this.name,
+    this.active = true,
   });
 
   // Convert object to Map for Sembast
@@ -12,6 +14,7 @@ class Person {
     return {
       'personId': personId,
       'name': name,
+      'active': active,
     };
   }
 
@@ -20,6 +23,8 @@ class Person {
     return Person(
       personId: map['personId'] as String,
       name: map['name'] as String,
+      // If 'active' is null (like in older data), default to true
+      active: map['active'] as bool ?? true,
     );
   }
 }

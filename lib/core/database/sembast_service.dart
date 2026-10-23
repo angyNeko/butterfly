@@ -28,4 +28,22 @@ class SembastService {
     final snapshots = await _peopleStore.find(_db);
     return snapshots.map((snapshot) => Person.fromMap(snapshot.value)).toList();
   }
+
+  // Get ONLY active people
+  Future<List<Person>> getActivePeople() async {
+    // 1. Create a Finder that filters where 'active' equals true
+    final finder = Finder(filter: Filter.equals('active', true));
+
+    // 2. Pass the finder into the query
+    final snapshots = await _peopleStore.find(_db, finder: finder);
+
+    // 3. Map the results
+    return snapshots.map((snapshot) => Person.fromMap(snapshot.value)).toList();
+  }
+
+  // Bonus: A helper to "soft delete" a person
+  Future<void> archivePerson(Person person) async {
+    person.active = false;
+    await savePerson(person); // Just overwrite them with active set to false
+  }
 }

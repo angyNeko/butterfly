@@ -62,8 +62,7 @@ class AiReceiptParser {
         items: parsedItems,
       );
 
-    } catch (e) {
-      print("Gemini Vision Error: $e");
+    } catch (_) {
       return null;
     }
   }

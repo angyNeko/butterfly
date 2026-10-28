@@ -82,8 +82,7 @@ class DashboardScreen extends ConsumerWidget {
           return;
         }
       }
-    } catch (e) {
-      print("Gemini Scan Error: $e");
+    } catch (_) {
     }
 
     // Handle failure

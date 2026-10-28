@@ -23,7 +23,7 @@ class SettingsScreen extends ConsumerWidget {
               value: currentTheme,
               onChanged: (ThemeMode? newMode) {
                 if (newMode != null) {
-                  ref.read(themeModeProvider.notifier).state = newMode;
+                  ref.read(themeModeProvider.notifier).setTheme(newMode);
                 }
               },
               items: const [

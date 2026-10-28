@@ -24,14 +24,9 @@ class ReceiptsScreen extends ConsumerWidget {
           final extractedText = await ocrService.scanReceipt(ImageSource.camera);
 
           if (extractedText != null) {
-            print("--- RAW OCR RESULT ---");
-            print(extractedText);
-            print("----------------------");
-
-            // Show a quick on-device confirmation
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Scan complete! Check Android Studio console.')),
+                const SnackBar(content: Text('Scan complete!')),
               );
             }
           }

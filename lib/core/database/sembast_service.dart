@@ -1,5 +1,3 @@
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import 'package:sembast/sembast_io.dart';
 
 import '../../features/people/models/person_model.dart';

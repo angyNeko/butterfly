@@ -59,8 +59,7 @@ class _AddReceiptScreenState extends ConsumerState<AddReceiptScreen> {
           });
         }
       }
-    } catch (e) {
-      print("Scan Error: $e");
+    } catch (_) {
     } finally {
       if (mounted) setState(() => _isScanning = false);
     }
@@ -138,7 +137,7 @@ class _AddReceiptScreenState extends ConsumerState<AddReceiptScreen> {
               borderRadius: BorderRadius.circular(4),
               border: Border.all(color: Theme.of(context).dividerColor, width: 2),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4))
+                BoxShadow(color: Colors.black.withValues(alpha: 20), blurRadius: 8, offset: const Offset(0, 4))
               ],
             ),
             child: _isScanning

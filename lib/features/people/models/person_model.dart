@@ -24,7 +24,7 @@ class Person {
       personId: map['personId'] as String,
       name: map['name'] as String,
       // If 'active' is null (like in older data), default to true
-      active: map['active'] as bool ?? true,
+      active: map['active'] as bool,
     );
   }
 }

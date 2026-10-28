@@ -27,8 +27,7 @@ class OcrService {
       final RecognizedText recognizedText = await _textRecognizer.processImage(inputImage);
 
       return recognizedText.text;
-    } catch (e) {
-      print("OCR Error: $e");
+    } catch (_) {
       return null;
     }
   }

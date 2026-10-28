@@ -4,70 +4,80 @@ import 'package:uuid/uuid.dart';
 import '../../models/person_model.dart';
 import '../../../../main.dart'; // Imports dbProvider
 
-
 class AddPersonDialog extends ConsumerStatefulWidget {
-  const AddPersonDialog({super.key});
+  final Person? personToEdit;
+
+  const AddPersonDialog({super.key, this.personToEdit});
 
   @override
   ConsumerState<AddPersonDialog> createState() => _AddPersonDialogState();
 }
 
 class _AddPersonDialogState extends ConsumerState<AddPersonDialog> {
-  // A controller to read the text the user types
-  final _nameController = TextEditingController();
+  late final TextEditingController _nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.personToEdit?.name ?? '');
+  }
 
   @override
   void dispose() {
-    // Always dispose controllers to prevent memory leaks
     _nameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.personToEdit != null;
+
     return AlertDialog(
-      title: const Text('Add Person'),
+      title: Text(isEditing ? 'Edit Person' : 'Add Person'),
       content: TextField(
         controller: _nameController,
-        autofocus: true, // Automatically opens the keyboard
-        textCapitalization: TextCapitalization.words, // Capitalizes the first letter
-        decoration: const InputDecoration(
+        autofocus: true,
+        textCapitalization: TextCapitalization.words,
+        decoration: InputDecoration(
           labelText: 'Name',
           hintText: 'Enter person\'s name',
-          border: OutlineInputBorder(), // Modern Material 3 boxed look
+          border: const OutlineInputBorder(),
+          prefixIcon: const Icon(Icons.person_outline),
         ),
-        onSubmitted: (_) => _savePerson(), // Save if they hit enter on keyboard
+        onSubmitted: (_) => _savePerson(),
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context), // Close without saving
+          onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
         FilledButton(
           onPressed: _savePerson,
-          child: const Text('Save'),
+          child: Text(isEditing ? 'Update' : 'Save'),
         ),
       ],
     );
   }
 
-  // Extracted the save logic into a helper function
   Future<void> _savePerson() async {
     final name = _nameController.text.trim();
 
-    // Only save if they actually typed something
     if (name.isNotEmpty) {
       final dbService = ref.read(dbProvider);
 
-      final newPerson = Person(
-        personId: const Uuid().v4(),
-        name: name,
-      );
-
-      await dbService.savePerson(newPerson);
+      if (widget.personToEdit != null) {
+        widget.personToEdit!.name = name;
+        await dbService.savePerson(widget.personToEdit!);
+      } else {
+        final newPerson = Person(
+          personId: const Uuid().v4(),
+          name: name,
+        );
+        await dbService.savePerson(newPerson);
+      }
 
       if (mounted) {
-        Navigator.pop(context); // Close the dialog after saving
+        Navigator.pop(context, true);
       }
     }
   }

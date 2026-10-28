@@ -61,6 +61,10 @@ class SembastService {
     await savePerson(person);
   }
 
+  Future<void> deletePerson(String personId) async {
+    await _peopleStore.record(personId).delete(_db);
+  }
+
   // --- RECEIPTS ---
   Future<void> saveReceipt(Receipt receipt) async {
     await _receiptsStore.record(receipt.receiptId).put(_db, receipt.toMap());
@@ -71,9 +75,24 @@ class SembastService {
     return snapshots.map((s) => Receipt.fromMap(s.value)).toList();
   }
 
+  Future<void> deleteReceipt(String receiptId) async {
+    await _receiptsStore.record(receiptId).delete(_db);
+    final finder = Finder(filter: Filter.equals('receiptId', receiptId));
+    await _itemsStore.delete(_db, finder: finder);
+  }
+
   // --- ITEMS ---
   Future<void> saveItem(Item item) async {
     await _itemsStore.record(item.itemId).put(_db, item.toMap());
+  }
+
+  Future<void> deleteItem(String itemId) async {
+    await _itemsStore.record(itemId).delete(_db);
+  }
+
+  Future<List<Item>> getAllItems() async {
+    final snapshots = await _itemsStore.find(_db);
+    return snapshots.map((s) => Item.fromMap(s.value)).toList();
   }
 
   Future<List<Item>> getUntaggedItems() async {
@@ -87,6 +106,25 @@ class SembastService {
     final finder = Finder(filter: Filter.equals('receiptId', receiptId));
     final snapshots = await _itemsStore.find(_db, finder: finder);
     return snapshots.map((s) => Item.fromMap(s.value)).toList();
+  }
+
+  Future<List<Item>> getItemsForPerson(String personId) async {
+    final allItems = await getAllItems();
+    return allItems.where((item) => item.assignedPersonIds.contains(personId)).toList();
+  }
+
+  Future<Map<String, double>> getPersonBalances() async {
+    final allItems = await getAllItems();
+    final balances = <String, double>{};
+    for (final item in allItems) {
+      if (item.assignedPersonIds.isNotEmpty) {
+        final share = (item.itemPrice * item.itemQty) / item.assignedPersonIds.length;
+        for (final pId in item.assignedPersonIds) {
+          balances[pId] = (balances[pId] ?? 0.0) + share;
+        }
+      }
+    }
+    return balances;
   }
 
   // --- STORES ---

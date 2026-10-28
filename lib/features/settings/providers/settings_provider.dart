@@ -24,3 +24,33 @@ class ApiKeyNotifier extends Notifier<String?> {
 final apiKeyProvider = NotifierProvider<ApiKeyNotifier, String?>(() {
   return ApiKeyNotifier();
 });
+
+class CurrencyNotifier extends Notifier<String> {
+  static const String defaultCurrency = '₱'; // Default to Peso or $
+
+  @override
+  String build() {
+    loadCurrency();
+    return defaultCurrency;
+  }
+
+  Future<void> loadCurrency() async {
+    final db = ref.read(dbProvider);
+    final currency = await db.getSetting('default_currency');
+    if (currency != null && currency.isNotEmpty) {
+      state = currency;
+    }
+  }
+
+  Future<void> saveCurrency(String newCurrency) async {
+    final clean = newCurrency.trim();
+    if (clean.isEmpty) return;
+    final db = ref.read(dbProvider);
+    await db.saveSetting('default_currency', clean);
+    state = clean;
+  }
+}
+
+final currencyProvider = NotifierProvider<CurrencyNotifier, String>(() {
+  return CurrencyNotifier();
+});

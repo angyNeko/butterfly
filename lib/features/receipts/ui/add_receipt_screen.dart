@@ -8,6 +8,7 @@ import '../../../main.dart';
 import '../models/item_model.dart';
 import '../models/receipt_model.dart';
 import '../services/ai_receipt_parser.dart';
+import '../../settings/providers/settings_provider.dart';
 import 'receipt_detail_screen.dart'; // Ensure exact spelling matches your file
 
 class AddReceiptScreen extends ConsumerStatefulWidget {
@@ -33,6 +34,16 @@ class _AddReceiptScreenState extends ConsumerState<AddReceiptScreen> {
   }
 
   Future<void> _scanReceipt(ImageSource source) async {
+    final apiKey = ref.read(apiKeyProvider);
+    if (apiKey == null || apiKey.trim().isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please set your Gemini API key in Settings first.')),
+        );
+      }
+      return;
+    }
+
     setState(() => _isScanning = true);
 
     try {
@@ -48,7 +59,7 @@ class _AddReceiptScreenState extends ConsumerState<AddReceiptScreen> {
         _persistentImagePath = savedFile.path;
 
         // 2. Pass the image file directly to the Multimodal Gemini Vision model
-        final parsedData = await AiReceiptParser.parseReceiptImage(savedFile);
+        final parsedData = await AiReceiptParser.parseReceipt(savedFile, apiKey);
 
         if (parsedData != null) {
           setState(() {

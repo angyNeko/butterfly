@@ -11,59 +11,72 @@ class ParsedReceiptData {
 }
 
 class AiReceiptParser {
-  // Pass the image File directly instead of text
-  static Future<ParsedReceiptData?> parseReceiptImage(File imageFile) async {
+  // Pass the image File directly along with the user's API key
+  static Future<ParsedReceiptData?> parseReceipt(File imageFile, String apiKey) async {
+    final cleanKey = apiKey.trim();
+    if (cleanKey.isEmpty) {
+      throw Exception('Gemini API key is empty.');
+    }
+
     final model = GenerativeModel(
-      model: 'gemini-1.5-flash', // Multimodal model
-      apiKey: 'YOUR_API_KEY_HERE',
+      model: 'gemini-3.5-flash-lite',
+      apiKey: cleanKey,
     );
 
-    try {
-      final prompt = TextPart('''
-      Extract the store name and items from this receipt image.
-      Respond ONLY with valid JSON in this exact format:
-      {
-        "storeName": "Store Name",
-        "items": [ {"itemName": "Item Name", "itemPrice": 10.50, "itemQty": 1} ]
-      }
-      ''');
+    final prompt = TextPart('''
+    Extract the store name and items from this receipt image.
+    Respond ONLY with valid JSON in this exact format:
+    {
+      "storeName": "Store Name",
+      "items": [ {"itemName": "Item Name", "itemPrice": 10.50, "itemQty": 1} ]
+    }
+    ''');
 
-      // Convert image to bytes
-      final imageBytes = await imageFile.readAsBytes();
-      final imagePart = DataPart('image/jpeg', imageBytes);
+    // Convert image to bytes
+    final imageBytes = await imageFile.readAsBytes();
+    final imagePart = DataPart('image/jpeg', imageBytes);
 
-      // Send image + prompt to Gemini
-      final response = await model.generateContent([
-        Content.multi([prompt, imagePart])
-      ]);
+    // Send image + prompt to Gemini
+    final response = await model.generateContent([
+      Content.multi([prompt, imagePart])
+    ]);
 
-      final cleanJson = response.text!.replaceAll('```json', '').replaceAll('```', '').trim();
-      final decoded = jsonDecode(cleanJson);
+    final responseText = response.text;
+    if (responseText == null || responseText.trim().isEmpty) {
+      throw Exception('Gemini returned an empty response.');
+    }
 
-      List<Item> parsedItems = [];
-      if (decoded['items'] != null) {
-        for (var i in decoded['items']) {
+    final firstBrace = responseText.indexOf('{');
+    final lastBrace = responseText.lastIndexOf('}');
+    if (firstBrace == -1 || lastBrace == -1) {
+      throw Exception('Could not parse JSON from Gemini response.');
+    }
+
+    final jsonString = responseText.substring(firstBrace, lastBrace + 1);
+    final decoded = jsonDecode(jsonString) as Map<String, dynamic>;
+
+    List<Item> parsedItems = [];
+    if (decoded['items'] is List) {
+      for (var i in (decoded['items'] as List)) {
+        if (i is Map) {
           parsedItems.add(
-              Item(
-                itemId: const Uuid().v4(),
-                receiptId: '', // Assigned in Dashboard later
-                itemName: i['itemName']?.toString() ?? 'Unknown',
-                itemPrice: double.tryParse(i['itemPrice'].toString()) ?? 0.0,
-                itemQty: int.tryParse(i['itemQty'].toString()) ?? 1,
-                splitType: "equal",
-                assignedPersonIds: [],
-              )
+            Item(
+              itemId: const Uuid().v4(),
+              receiptId: '', // Assigned in Dashboard later
+              itemName: i['itemName']?.toString() ?? 'Unknown Item',
+              itemPrice: double.tryParse(i['itemPrice']?.toString() ?? '') ?? 0.0,
+              itemQty: int.tryParse(i['itemQty']?.toString() ?? '') ?? 1,
+              splitType: "equal",
+              assignedPersonIds: [],
+            ),
           );
         }
       }
-
-      return ParsedReceiptData(
-        storeName: decoded['storeName'],
-        items: parsedItems,
-      );
-
-    } catch (_) {
-      return null;
     }
+
+    return ParsedReceiptData(
+      storeName: decoded['storeName']?.toString(),
+      items: parsedItems,
+    );
   }
 }

@@ -14,12 +14,23 @@ import 'widgets/person_balance_card.dart';
 import '../../receipts/models/receipt_model.dart';
 import '../../receipts/services/ai_receipt_parser.dart';
 import '../../receipts/ui/receipt_detail_screen.dart';
+import '../../settings/providers/settings_provider.dart';
 import '../../settings/ui/settings_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   Future<void> _processReceipt(BuildContext context, WidgetRef ref, ImageSource source) async {
+    final apiKey = ref.read(apiKeyProvider);
+    if (apiKey == null || apiKey.trim().isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please set your Gemini API key in Settings first.')),
+        );
+      }
+      return;
+    }
+
     // 1. Instantly open camera or gallery
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
@@ -50,7 +61,7 @@ class DashboardScreen extends ConsumerWidget {
       final savedFile = await File(pickedFile.path).copy(destinationPath);
 
       // 4. Send the physical file directly to Gemini
-      final parsedData = await AiReceiptParser.parseReceiptImage(savedFile);
+      final parsedData = await AiReceiptParser.parseReceipt(savedFile, apiKey);
 
       if (parsedData != null) {
         final dbService = ref.read(dbProvider);
@@ -82,13 +93,23 @@ class DashboardScreen extends ConsumerWidget {
           return;
         }
       }
-    } catch (_) {
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context);
+        final errorMsg = e.toString().replaceAll('Exception: ', '');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Scan failed: $errorMsg')),
+        );
+        return;
+      }
     }
 
-    // Handle failure
+    // Handle failure when parsedData is null
     if (context.mounted) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Scan failed')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Scan failed: Unable to extract receipt data.')),
+      );
     }
   }
 

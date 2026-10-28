@@ -3,16 +3,14 @@ class Receipt {
   String name;
   String store;
   DateTime date;
-  String? receiptImg;
-  String? rawOcrText; // Added to save the scanned text for reference
+  String? rawOcrText;
 
   Receipt({
     required this.receiptId,
     required this.name,
     required this.store,
     required this.date,
-    this.receiptImg,
-    this.rawOcrText,
+    this.rawOcrText, String? receiptImg,
   });
 
   Map<String, dynamic> toMap() {
@@ -21,7 +19,6 @@ class Receipt {
       'name': name,
       'store': store,
       'date': date.toIso8601String(),
-      'receiptImg': receiptImg,
       'rawOcrText': rawOcrText,
     };
   }
@@ -32,7 +29,6 @@ class Receipt {
       name: map['name'] as String,
       store: map['store'] as String,
       date: DateTime.parse(map['date'] as String),
-      receiptImg: map['receiptImg'] as String?,
       rawOcrText: map['rawOcrText'] as String?,
     );
   }

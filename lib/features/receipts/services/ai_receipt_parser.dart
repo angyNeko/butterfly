@@ -1,93 +1,70 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:uuid/uuid.dart';
 import '../models/item_model.dart';
 
+class ParsedReceiptData {
+  final String? storeName;
+  final List<Item> items;
+  ParsedReceiptData({this.storeName, required this.items});
+}
+
 class AiReceiptParser {
-  // Replace with your actual Gemini API key
-  // static const String _apiKey = String.fromEnvironment('GEMINI_API_KEY');
-  static const String _apiKey = 'AQ.Ab8RN6IlRGzj8JmoJnsIY0sakMvLSeweLLboQrxJL247MWV6eA';
+  // Pass the image File directly instead of text
+  static Future<ParsedReceiptData?> parseReceiptImage(File imageFile) async {
+    final model = GenerativeModel(
+      model: 'gemini-1.5-flash', // Multimodal model
+      apiKey: 'YOUR_API_KEY_HERE',
+    );
 
-      static Future<ParsedAiReceiptResult?> parseReceiptWithAI(String rawText) async {
     try {
-      final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: _apiKey,
-        generationConfig: GenerationConfig(
-          responseMimeType: 'application/json',
-          responseSchema: Schema.object(
-            properties: {
-              'storeName': Schema.string(description: 'The name of the store or merchant'),
-              'dateString': Schema.string(description: 'The date of the transaction'),
-              'items': Schema.array(
-                description: 'List of purchased items',
-                items: Schema.object(
-                  properties: {
-                    'name': Schema.string(description: 'Name of the item'),
-                    'quantity': Schema.integer(description: 'Quantity purchased (default to 1)'),
-                    'price': Schema.number(description: 'Total price for this line item as a decimal number'),
-                  },
-                  requiredProperties: ['name', 'quantity', 'price'],
-                ),
-              ),
-            },
-            requiredProperties: ['storeName', 'items'],
-          ),
-        ),
-      );
+      final prompt = TextPart('''
+      Extract the store name and items from this receipt image.
+      Respond ONLY with valid JSON in this exact format:
+      {
+        "storeName": "Store Name",
+        "items": [ {"itemName": "Item Name", "itemPrice": 10.50, "itemQty": 1} ]
+      }
+      ''');
 
-      final prompt = '''
-      You are an expert receipt parser. Analyze the following raw OCR text extracted from a store receipt. 
-      Extract the store name, transaction date, and a list of all purchased items with their quantities and prices. 
-      Ignore taxes, subtotals, and change lines, focusing only on individual items.
-      
-      Raw OCR Text:
-      $rawText
-      ''';
+      // Convert image to bytes
+      final imageBytes = await imageFile.readAsBytes();
+      final imagePart = DataPart('image/jpeg', imageBytes);
 
-      final response = await model.generateContent([Content.text(prompt)]);
-      final jsonResponse = jsonDecode(response.text ?? '{}');
+      // Send image + prompt to Gemini
+      final response = await model.generateContent([
+        Content.multi([prompt, imagePart])
+      ]);
 
-      String? storeName = jsonResponse['storeName'];
-      String? dateString = jsonResponse['dateString'];
+      final cleanJson = response.text!.replaceAll('```json', '').replaceAll('```', '').trim();
+      final decoded = jsonDecode(cleanJson);
 
-      List<Item> items = [];
-      if (jsonResponse['items'] != null) {
-        for (var itemJson in jsonResponse['items']) {
-          items.add(Item(
-            itemId: const Uuid().v4(),
-            receiptId: '',
-            itemName: itemJson['name'] ?? 'Unknown Item',
-            itemPrice: (itemJson['price'] as num?)?.toDouble() ?? 0.0,
-            itemQty: itemJson['quantity'] ?? 1,
-            splitType: 'equal',
-          ));
+      List<Item> parsedItems = [];
+      if (decoded['items'] != null) {
+        for (var i in decoded['items']) {
+          parsedItems.add(
+              Item(
+                itemId: const Uuid().v4(),
+                receiptId: '', // Assigned in Dashboard later
+                itemName: i['itemName']?.toString() ?? 'Unknown',
+                itemPrice: double.tryParse(i['itemPrice'].toString()) ?? 0.0,
+                itemQty: int.tryParse(i['itemQty'].toString()) ?? 1,
+                splitType: "equal",
+                assignedPersonIds: [],
+              )
+          );
         }
       }
 
-      return ParsedAiReceiptResult(
-        storeName: storeName,
-        dateString: dateString,
-        items: items,
-        rawOcrText: rawText,
+      return ParsedReceiptData(
+        storeName: decoded['storeName'],
+        items: parsedItems,
       );
+
     } catch (e) {
-      print('AI Parsing Error: $e');
+      print("Gemini Vision Error: $e");
       return null;
     }
   }
-}
-
-class ParsedAiReceiptResult {
-  final String? storeName;
-  final String? dateString;
-  final List<Item> items;
-  final String rawOcrText;
-
-  ParsedAiReceiptResult({
-    required this.storeName,
-    required this.dateString,
-    required this.items,
-    required this.rawOcrText,
-  });
 }

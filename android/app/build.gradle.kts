@@ -9,6 +9,10 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    buildFeatures {
+        resValues = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -23,9 +27,12 @@ android {
     }
 
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+        getByName("debug") {
+            resValue("string", "app_name", "Red Cracker (Dev)")
+            applicationIdSuffix = ".dev"
+        }
+        getByName("release") {
+            resValue("string", "app_name", "Red Cracker")
             signingConfig = signingConfigs.getByName("debug")
         }
     }

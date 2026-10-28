@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108">
+  <defs>
+    <!-- Symmetrical Wing Definition -->
+    <g id="m3-cracker-wing">
+      <!-- Forewing Outer Base -->
+      <path d="M 54,44 
+               C 62,32 74,25 85,27 
+               C 89,28 91,33 88,42 
+               C 84,52 70,56 54,53 Z" fill="#0B57D0" />
+
+      <!-- Deep Accent Mosaic Base -->
+      <path d="M 54,44 C 62,32 74,25 85,27 C 82,34 72,38 54,47 Z" fill="#041E42" />
+      
+      <!-- Material 3 Light Tonal Bands -->
+      <path d="M 62,35 C 72,31 82,32 85,35 C 80,41 71,43 59,42 Z" fill="#46D2D0" />
+      <path d="M 68,44 C 76,43 84,43 87,46 C 82,51 72,52 58,49 Z" fill="#F0F4F9" />
+
+      <!-- Geometric Pattern Spots -->
+      <circle cx="82" cy="31" r="1.8" fill="#F0F4F9" />
+      <circle cx="85" cy="38" r="1.8" fill="#F0F4F9" />
+      <circle cx="82" cy="45" r="1.5" fill="#F0F4F9" />
+      <circle cx="75" cy="36" r="2.2" fill="#041E42" />
+      <circle cx="74" cy="48" r="2.0" fill="#0B57D0" />
+      <circle cx="65" cy="47" r="1.5" fill="#A8C7FA" />
+
+      <!-- Hindwing Outer Base -->
+      <path d="M 54,54 
+               C 66,54 85,58 82,73 
+               C 79,84 64,86 54,75 Z" fill="#0B57D0" />
+
+      <!-- Hindwing Mosaic Base -->
+      <path d="M 54,56 C 64,56 78,59 76,70 C 73,79 61,80 54,72 Z" fill="#041E42" />
+      <path d="M 58,60 C 68,60 76,64 74,72 C 71,78 61,78 56,71 Z" fill="#2563EB" />
+      
+      <!-- Ocelli (Eyespot Concentric Rings) -->
+      <circle cx="68" cy="72" r="4.5" fill="#46D2D0" />
+      <circle cx="68" cy="72" r="2.8" fill="#041E42" />
+      <circle cx="68" cy="72" r="1.2" fill="#F0F4F9" />
+
+      <circle cx="59" cy="73" r="3.5" fill="#F0F4F9" />
+      <circle cx="59" cy="73" r="2.0" fill="#041E42" />
+      <circle cx="59" cy="73" r="0.9" fill="#F0F4F9" />
+
+      <!-- Border Dots -->
+      <circle cx="79" cy="63" r="1.2" fill="#F0F4F9" />
+      <circle cx="77" cy="73" r="1.2" fill="#F0F4F9" />
+      <circle cx="68" cy="80" r="1.2" fill="#F0F4F9" />
+      <circle cx="60" cy="82" r="1.2" fill="#F0F4F9" />
+    </g>
+  </defs>
+
+  <!-- Material 3 Surface Container & Border -->
+  <rect width="108" height="108" rx="28" fill="#21263A" />
+  <rect x="4" y="4" width="100" height="100" rx="24" fill="none" stroke="#2C3550" stroke-width="1.5" />
+
+  <!-- Background Wind Swirls -->
+  <g opacity="0.3">
+    <path d="M -10,35 Q 20,15 45,30 T 115,15" fill="none" stroke="#A8C7FA" stroke-width="2" stroke-linecap="round" />
+    <path d="M -5,80 Q 30,95 55,75 T 120,65" fill="none" stroke="#8AB4F8" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M 30,110 Q 50,85 85,95 T 115,80" fill="none" stroke="#D3E3FD" stroke-width="1" stroke-linecap="round" />
+  </g>
+
+  <!-- Left Wing (Mirrored) -->
+  <use href="#m3-cracker-wing" transform="translate(108, 0) scale(-1, 1)" />
+
+  <!-- Right Wing -->
+  <use href="#m3-cracker-wing" />
+
+  <!-- Body Details -->
+  <path d="M 54,33 C 58,25 63,21 66,20" stroke="#7CACF8" stroke-width="1.5" stroke-linecap="round" fill="none" />
+  <path d="M 54,33 C 50,25 45,21 42,20" stroke="#7CACF8" stroke-width="1.5" stroke-linecap="round" fill="none" />
+  <circle cx="66" cy="20" r="1.5" fill="#7CACF8" />
+  <circle cx="42" cy="20" r="1.5" fill="#7CACF8" />
+
+  <!-- Head -->
+  <circle cx="54" cy="34" r="3" fill="#7CACF8" />
+
+  <!-- Thorax -->
+  <rect x="51.5" y="38" width="5" height="14" rx="2.5" fill="#A8C7FA" />
+  <circle cx="54" cy="41" r="0.8" fill="#041E42" />
+  <circle cx="54" cy="45" r="0.8" fill="#041E42" />
+  <circle cx="54" cy="49" r="0.8" fill="#041E42" />
+
+  <!-- Abdomen -->
+  <rect x="52.2" y="53" width="3.6" height="20" rx="1.8" fill="#7CACF8" />
+  <line x1="52.2" y1="57" x2="55.8" y2="57" stroke="#041E42" stroke-width="0.8" />
+  <line x1="52.2" y1="61" x2="55.8" y2="61" stroke="#041E42" stroke-width="0.8" />
+  <line x1="52.2" y1="65" x2="55.8" y2="65" stroke="#041E42" stroke-width="0.8" />
+  <line x1="52.2" y1="69" x2="55.8" y2="69" stroke="#041E42" stroke-width="0.8" />
+
+  <!-- Foreground Wind Accents -->
+  <g opacity="0.6">
+    <path d="M 5,60 C 25,45 45,75 75,55 S 100,45 110,40" fill="none" stroke="#D3E3FD" stroke-width="1.2" stroke-linecap="round" />
+    <path d="M 15,95 Q 40,85 54,95 T 95,85" fill="none" stroke="#E8F0FE" stroke-width="0.8" stroke-linecap="round" />
+    
+    <!-- Wind Particles -->
+    <circle cx="85" cy="48" r="0.8" fill="#D3E3FD" />
+    <circle cx="92" cy="43" r="1.2" fill="#D3E3FD" />
+    <circle cx="25" cy="55" r="1" fill="#E8F0FE" />
+    <circle cx="18" cy="62" r="0.6" fill="#E8F0FE" />
+    <circle cx="70" cy="90" r="1" fill="#A8C7FA" />
+  </g>
+</svg>

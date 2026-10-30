@@ -20,7 +20,7 @@ class AiReceiptParser {
     }
 
     final model = GenerativeModel(
-      model: 'gemini-3.5-flash-lite', // do not change to 1.5 flash; not available
+      model: 'gemini-3.5-flash-lite', // do not change to 1.5 flash; 1.5 is not available anymore
       apiKey: cleanKey,
       generationConfig: GenerationConfig(
         responseMimeType: 'application/json',
@@ -45,7 +45,8 @@ MANDATORY RULES FOR ITEMS AND QUANTITY:
 Respond ONLY with valid JSON in this exact structure:
 {
   "storeName": "Store Name",
-  "currency": "₱",
+  "receiptDate": "MM/DD/YYYY",
+  "currency": "PHP",
   "items": [
     {"itemName": "Item Name", "itemPrice": 12.50, "itemQty": 1}
   ]
@@ -72,6 +73,7 @@ Respond ONLY with valid JSON in this exact structure:
         imageBytes[11] == 0x50) {
       mimeType = 'image/webp';
     }
+
     final imagePart = DataPart(mimeType, imageBytes);
 
     // Send image + prompt to Gemini
@@ -83,6 +85,8 @@ Respond ONLY with valid JSON in this exact structure:
     if (responseText == null || responseText.trim().isEmpty) {
       throw Exception('Gemini returned an empty response.');
     }
+
+    print(responseText);
 
     final firstBrace = responseText.indexOf('{');
     final lastBrace = responseText.lastIndexOf('}');
